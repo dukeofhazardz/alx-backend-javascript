@@ -30,14 +30,21 @@ function countStudents(path) {
                   console.log(`Number of students in ${field}: ${fieldCounts[field]}. List: ${students.join(', ')}`);
                 });
               }
+        }
+        for (const field in fieldCounts) {
+            if (field === 'SWE') {
+                getStudentList(path, field, (students) => {
+                  console.log(`Number of students in ${field}: ${fieldCounts[field]}. List: ${students.join(', ')}`);
+                });
             }
-          });
+        }
+    });
   } catch (error) {
     console.error('Cannot load the database');
   }
 }
 
-function getStudentList(path, studentField) {
+function getStudentList(path, studentField, callback) {
   const students = [];
 
   fs.createReadStream(path)
