@@ -23,6 +23,7 @@ describe('sendPaymentRequestToApi', function () {
 
     // Verify that Utils.calculateNumber was called with the correct arguments
     sinon.assert.calledWithExactly(calculateNumberStub, 'SUM', 100, 20);
+    calculateNumberStub.restore();
   });
 
   it('should log the correct total', function () {
@@ -34,5 +35,6 @@ describe('sendPaymentRequestToApi', function () {
 
     // Verify that console.log was called with the correct message
     sinon.assert.calledWithExactly(consoleLogSpy, 'The total is: 10');
+    consoleLogSpy.restore();
   });
 });
