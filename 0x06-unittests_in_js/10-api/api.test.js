@@ -31,44 +31,41 @@ describe('API Test Suite', function () {
       .expect(404, done);
   });
 
-  it('should return the correct status code for /available_payments', function (done) {
-    request(app)
-      .get('/available_payments')
-      .expect(200, done);
+  // Test suite for /available_payments endpoint
+  describe('GET /available_payments', function () {
+    it('should return the correct payment methods', function (done) {
+      request(app)
+        .get('/available_payments')
+        .expect(200)
+        .end(function (err, res) {
+          if (err) return done(err);
+          assert.deepEqual(res.body, {
+            payment_methods: {
+              credit_cards: true,
+              paypal: false,
+            },
+          });
+          done();
+        });
+    });
   });
 
-  it('should return the correct payment methods for /available_payments', function (done) {
-    request(app)
-      .get('/available_payments')
-      .end(function (err, res) {
-        if (err) return done(err);
-        const expectedResponse = {
-          payment_methods: {
-            credit_cards: true,
-            paypal: false
-          }
-        };
-        assert.deepEqual(res.body, expectedResponse);
-        done();
-      });
+  // Test suite for /login endpoint
+  describe('POST /login', function () {
+    it('should return a welcome message with username', function (done) {
+      const userName = 'Betty';
+      request(app)
+        .post('/login')
+        .send({ userName })
+        .set('Content-Type', 'application/json')
+        .expect(200)
+        .end(function (err, res) {
+          if (err) return done(err);
+          assert.equal(res.text, `Welcome ${userName}`);
+          done();
+        });
+    });
   });
 
-  it('should return the correct status code for /login', function (done) {
-    request(app)
-      .post('/login')
-      .send({ userName: 'John' })
-      .expect(200, done);
-  });
-
-  it('should return the correct welcome message for /login', function (done) {
-    request(app)
-      .post('/login')
-      .send({ userName: 'Alice' })
-      .end(function (err, res) {
-        if (err) return done(err);
-        assert.equal(res.text, 'Welcome Alice');
-        done();
-      });
-  });
-
+  // Add more test cases as needed
 });

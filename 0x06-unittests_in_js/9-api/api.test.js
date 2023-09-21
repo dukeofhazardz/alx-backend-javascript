@@ -24,4 +24,12 @@ describe('API Test Suite', function () {
       .get('/cart/abc')
       .expect(404, done);
   });
+
+  it('should return 404 when :id is not an integer', function (done) {
+    request(app)
+      .get('/cart/1.23')
+      .expect(404, done);
+  });
+
+  // Add more test cases as needed
 });

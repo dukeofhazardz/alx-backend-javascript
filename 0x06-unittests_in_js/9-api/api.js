@@ -4,7 +4,7 @@ const PORT = 7865;
 
 // Middleware for validating :id parameter as a number
 app.param('id', (req, res, next, id) => {
-  if (!isNaN(id)) {
+  if (!isNaN(id) && Number.isInteger(parseFloat(id))) { // Validate :id as a number
     req.id = parseInt(id, 10);
     next();
   } else {
