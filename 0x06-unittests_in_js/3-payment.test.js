@@ -9,7 +9,6 @@ describe('sendPaymentRequestToApi', function () {
 
     // Call the function you want to test
     sendPaymentRequestToApi(100, 20);
-    console.log(calculateNumberSpy.args);
 
     // Verify that Utils.calculateNumber was called with the correct arguments
     sinon.assert.calledWithExactly(calculateNumberSpy, 'SUM', 100, 20);
