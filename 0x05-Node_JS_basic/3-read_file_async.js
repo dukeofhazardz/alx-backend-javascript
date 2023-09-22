@@ -1,72 +1,39 @@
 const fs = require('fs');
 const csv = require('csv-parser');
 
-async function getStudentList(path, studentField) {
-  const students = [];
-
-  return new Promise((resolve) => {
-    fs.createReadStream(path)
-      .pipe(csv())
-      .on('data', (row) => {
-        const {
-          firstname, lastname, age, field,
-        } = row;
-
-        if (firstname && lastname && age && field && field === studentField) {
-          students.push(firstname);
-        }
-      })
-      .on('end', () => {
-        resolve(students.join(', '));
-      });
-  });
-}
-
 function countStudents(path) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const fieldCounts = {};
-      let totalStudents = 0;
+  return new Promise((resolve, reject) => {
+    // Check if the file exists
+    fs.access(path, fs.constants.F_OK, (err) => {
+      if (err) {
+        reject(new Error('Cannot load the database'));
+        return;
+      }
+
+      const students = {
+        CS: [],
+        SWE: [],
+      };
 
       fs.createReadStream(path)
         .pipe(csv())
         .on('data', (row) => {
-          const {
-            firstname, lastname, age, field,
-          } = row;
-
-          if (firstname && lastname && age && field) {
-            if (fieldCounts[field]) {
-              fieldCounts[field] += 1;
-            } else {
-              fieldCounts[field] = 1;
+          // Check if the row contains valid data
+          if (row.firstname && row.lastname && row.age && row.field) {
+            // Assuming you have fields 'CS' and 'SWE'
+            if (row.field === 'CS' || row.field === 'SWE') {
+              students[row.field].push(row.firstname);
             }
-
-            totalStudents += 1;
           }
         })
-        .on('end', async () => {
+        .on('end', () => {
+          const totalStudents = students.CS.length + students.SWE.length;
           console.log(`Number of students: ${totalStudents}`);
-
-          for (const field in fieldCounts) {
-            if (field === 'CS') {
-              const studentList = await getStudentList(path, field);
-              console.log(`Number of students in ${field}: ${fieldCounts[field]}. List: ${studentList}`);
-            }
-          }
-
-          for (const field in fieldCounts) {
-            if (field === 'SWE') {
-              const studentList = await getStudentList(path, field);
-              console.log(`Number of students in ${field}: ${fieldCounts[field]}. List: ${studentList}`);
-            }
-          }
-
-          resolve();
+          console.log(`Number of students in CS: ${students.CS.length}. List: ${students.CS.join(', ')}`);
+          console.log(`Number of students in SWE: ${students.SWE.length}. List: ${students.SWE.join(', ')}`);
+          resolve(); // Resolve the promise when done
         });
-    } catch (error) {
-      reject('Cannot load the database');
-    }
+    });
   });
 }
 

@@ -1,75 +1,34 @@
 const fs = require('fs');
-
 const csv = require('csv-parser');
 
-function getStudentList(path, studentField, callback) {
-  const students = [];
+function countStudents(path) {
+  // Check if the file exists
+  if (!fs.existsSync(path)) {
+    throw new Error('Cannot load the database');
+  }
+
+  const students = {
+    CS: [],
+    SWE: [],
+  };
 
   fs.createReadStream(path)
     .pipe(csv())
     .on('data', (row) => {
-      const {
-        firstname,
-        lastname,
-        age,
-        field,
-      } = row;
-
-      if (firstname && lastname && age && field && field === studentField) {
-        students.push(firstname);
+      // Check if the row contains valid data
+      if (row.firstname && row.lastname && row.age && row.field) {
+        // Assuming you have fields 'CS' and 'SWE'
+        if (row.field === 'CS' || row.field === 'SWE') {
+          students[row.field].push(row.firstname);
+        }
       }
     })
     .on('end', () => {
-      callback(students);
+      const totalStudents = students.CS.length + students.SWE.length;
+      console.log(`Number of students: ${totalStudents}`);
+      console.log(`Number of students in CS: ${students.CS.length}. List: ${students.CS.join(', ')}`);
+      console.log(`Number of students in SWE: ${students.SWE.length}. List: ${students.SWE.join(', ')}`);
     });
-}
-
-function countStudents(path) {
-  try {
-    const fieldCounts = {};
-    let totalStudents = 0;
-
-    fs.createReadStream(path)
-      .pipe(csv())
-      .on('data', (row) => {
-        const {
-          firstname,
-          lastname,
-          age,
-          field,
-        } = row;
-
-        if (firstname && lastname && age && field) {
-          if (fieldCounts[field]) {
-            fieldCounts[field] += 1;
-          } else {
-            fieldCounts[field] = 1;
-          }
-
-          totalStudents += 1;
-        }
-      })
-      .on('end', () => {
-        console.log(`Number of students: ${totalStudents}`);
-
-        for (const field in fieldCounts) {
-          if (field === 'CS') {
-            getStudentList(path, field, (students) => {
-              console.log(`Number of students in ${field}: ${fieldCounts[field]}. List: ${students.join(', ')}`);
-            });
-          }
-        }
-        for (const field in fieldCounts) {
-          if (field === 'SWE') {
-            getStudentList(path, field, (students) => {
-              console.log(`Number of students in ${field}: ${fieldCounts[field]}. List: ${students.join(', ')}`);
-            });
-          }
-        }
-      });
-  } catch (error) {
-    throw new Error('Cannot load the database');
-  }
 }
 
 module.exports = countStudents;
